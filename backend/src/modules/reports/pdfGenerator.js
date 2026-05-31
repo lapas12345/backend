@@ -1,4 +1,5 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const fs = require('fs');
 const path = require('path');
 
@@ -8,10 +9,19 @@ class PDFGenerator {
   }
 
   async generateReport(data) {
-    const browser = await puppeteer.launch({ 
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    const browser = await puppeteer.launch({
+      args: [
+        ...chromium.args,
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ],
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
+
     const page = await browser.newPage();
     
     const templatePath = path.join(this.templateDir, 'informe-tutorias.html');
@@ -42,13 +52,12 @@ class PDFGenerator {
       console.warn('Logo PNG no encontrado');
     }
 
-    // Logo FOOTER (JPG) - más pequeño
+    // Logo FOOTER (JPG)
     const logoFooterPath = path.join(this.templateDir, 'logo-uleam.jpg');
     let logoFooterHtml = '<div></div>';
     try {
       const buf = fs.readFileSync(logoFooterPath);
       const b64 = buf.toString('base64');
-      // height: 20px en vez de 30px para hacer el footer más compacto
       logoFooterHtml = '<img src="data:image/jpeg;base64,' + b64 + '" style="width:100%;height:20px;display:block;object-fit:contain;" />';
     } catch (e) {
       console.warn('Logo JPG no encontrado');
@@ -62,7 +71,7 @@ class PDFGenerator {
         '</div>' +
       '</div>';
 
-    // FOOTER: Más compacto, número más pequeño
+    // FOOTER
     const footerTemplate = 
       '<div style="font-size:8px;width:100%;margin:0;padding:0;box-sizing:border-box;">' +
         '<div style="padding:0 1cm;position:relative;">' +
@@ -73,14 +82,13 @@ class PDFGenerator {
         '</div>' +
       '</div>';
 
-    // MÁRGENES: bottom reducido para más contenido
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { 
         top: '3.5cm',
         right: '2.48cm', 
-        bottom: '2cm',     // Reducido para más espacio de contenido
+        bottom: '2cm',
         left: '3cm'
       },
       displayHeaderFooter: true,
@@ -93,12 +101,9 @@ class PDFGenerator {
   }
 
   buildCareerTables(careers) {
-    
-    
-const totalTeachers = (careers || []).reduce((sum, c) => sum + (parseInt(c.teacher_count) || 0), 0);
+    const totalTeachers = (careers || []).reduce((sum, c) => sum + (parseInt(c.teacher_count) || 0), 0);
     const totalStudents = (careers || []).reduce((sum, c) => sum + (parseInt(c.student_count) || 0), 0);
 
-    // Filas de la tabla resumen con numeración
     const summaryRows = (careers || []).map((c, idx) => `
       <tr>
         <td class="center">${idx + 1}</td>
@@ -128,8 +133,6 @@ const totalTeachers = (careers || []).reduce((sum, c) => sum + (parseInt(c.teach
         </tfoot>
       </table>
     `;
-    
-   
 
     const detail = (careers || []).map(career => {
       const modularNames = ['ELECTROMECÁNICA', 'DERECHO', 'ELECTROMECANICA'];

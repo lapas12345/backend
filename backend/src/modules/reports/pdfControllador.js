@@ -122,27 +122,7 @@ exports.generateReport = async (req, res) => {
           observation = `Docente ${teach.dedicacion.toLowerCase().replace('_', ' ')} - ${teach.tipo_vinculacion.toLowerCase()}`;
         }
 
-            const careersQuery = `
-      SELECT 
-        c.id_carrera,
-        c.nombre as name,
-        COUNT(DISTINCT ar.id_profesor) as teacher_count,
-        COUNT(DISTINCT te.id_estudiante) as student_count
-      FROM seguimiento.carrera c
-      LEFT JOIN seguimiento.asignacion_rol ar 
-        ON ar.id_carrera = c.id_carrera 
-        AND ar.id_periodo = $1
-      LEFT JOIN seguimiento.informe_mensual im
-        ON im.id_carrera = c.id_carrera
-        AND im.id_periodo = $1
-        AND im.id_funcion = 1
-      LEFT JOIN seguimiento.tutoria_estudiante te
-        ON te.id_informe = im.id_informe
-      WHERE c.estado = 'ACTIVO'
-      GROUP BY c.id_carrera, c.nombre
-      ORDER BY c.nombre
-    `;
-        
+           
         career.teachers.push({
           fullName: teach.full_name,
           sep: meses[9],
