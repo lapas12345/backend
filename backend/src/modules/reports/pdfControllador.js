@@ -24,6 +24,7 @@ exports.generateReport = async (req, res) => {
     console.log('[CTRL] Petición recibida:', req.body);
     const { period, oficioNumber } = req.body;
     
+    // 1. Obtener periodo académico
     const periodQuery = `
       SELECT id_periodo, nombre, fecha_inicio, fecha_fin
       FROM seguimiento.periodo_academico
@@ -43,6 +44,7 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Período BD:', periodName, 'Inicio:', fechaInicio, 'Fin:', fechaFin);
     
+    // 2. Calcular meses dinámicos del período
     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
     const dynamicMonths = [];
     const current = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
@@ -59,12 +61,14 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Meses dinámicos:', dynamicMonths);
     
+    // 3. Obtener carreras activas con conteo de docentes y estudiantes tutorados
+    // CORRECCIÓN: usamos informe_mensual.id_estudiante en lugar de tutoria_estudiante
     const careersQuery = `
       SELECT 
         c.id_carrera,
         c.nombre as name,
         COUNT(DISTINCT ar.id_profesor) as teacher_count,
-        COUNT(DISTINCT te.id_estudiante) as student_count
+        COUNT(DISTINCT im.id_estudiante) as student_count
       FROM seguimiento.carrera c
       LEFT JOIN seguimiento.asignacion_rol ar 
         ON ar.id_carrera = c.id_carrera 
@@ -73,8 +77,6 @@ exports.generateReport = async (req, res) => {
         ON im.id_carrera = c.id_carrera
         AND im.id_periodo = $1
         AND im.id_funcion = 1
-      LEFT JOIN seguimiento.tutoria_estudiante te
-        ON te.id_informe = im.id_informe
       WHERE c.estado = 'ACTIVO'
       GROUP BY c.id_carrera, c.nombre
       ORDER BY c.nombre
@@ -82,25 +84,27 @@ exports.generateReport = async (req, res) => {
     const { rows: careers } = await pool.query(careersQuery, [periodId]);
     console.log('[CTRL] Carreras encontradas:', careers.length);
     
+    // 4. Para cada carrera, obtener docentes
     for (let career of careers) {
       if (career.teacher_count === 0) {
         career.teachers = [];
         continue;
       }
       
+      // CORRECCIÓN: tabla usuario (según diagrama) en lugar de profesor
       const teachersQuery = `
         SELECT 
-          p.id_profesor,
-          p.nombres || ' ' || p.apellidos as full_name,
-          p.dedicacion,
-          p.tipo_vinculacion
-        FROM seguimiento.profesor p
+          u.id_profesor,
+          u.nombres || ' ' || u.apellidos as full_name,
+          u.dedicacion,
+          u.tipo_vinculacion
+        FROM seguimiento.usuario u
         INNER JOIN seguimiento.asignacion_rol ar 
-          ON ar.id_profesor = p.id_profesor
+          ON ar.id_profesor = u.id_profesor
         WHERE ar.id_carrera = $1 
           AND ar.id_periodo = $2
-          AND p.estado = 'ACTIVO'
-        ORDER BY p.apellidos, p.nombres
+          AND u.estado = 'ACTIVO'
+        ORDER BY u.apellidos, u.nombres
       `;
       const { rows: teachers } = await pool.query(teachersQuery, [career.id_carrera, periodId]);
       
@@ -125,6 +129,7 @@ exports.generateReport = async (req, res) => {
           career.id_carrera
         ]);
         
+        // Inicializar meses dinámicos del período
         const mesesCumplidos = {};
         dynamicMonths.forEach(m => {
           mesesCumplidos[m.num] = false;
@@ -138,7 +143,7 @@ exports.generateReport = async (req, res) => {
           }
         }
         
-        // CORRECCIÓN DEFENSIVA: evitar crash si dedicacion o tipo_vinculacion son null
+        // Defensa contra null en la BD
         if (teach.dedicacion && teach.dedicacion !== 'TIEMPO_COMPLETO') {
           const ded = (teach.dedicacion || '').toLowerCase().replace('_', ' ');
           const vin = (teach.tipo_vinculacion || '').toLowerCase();
@@ -158,6 +163,7 @@ exports.generateReport = async (req, res) => {
       }
     }
     
+    // 5. Generar PDF
     console.log('[CTRL] Enviando datos a PDFGenerator...');
     const pdfBuffer = await pdfGen.generateReport({
       oficioNumber: oficioNumber || `ULEAM-022-DPGA-TA-${period}`,
