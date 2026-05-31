@@ -4,7 +4,14 @@ const reportRoutes = require('./src/modules/reports/reportRoutes');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://sistema-gestion-academica.vercel.app',  // tu frontend en Vercel
+    'http://localhost:5173'                            // para desarrollo local
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/reports', reportRoutes);
