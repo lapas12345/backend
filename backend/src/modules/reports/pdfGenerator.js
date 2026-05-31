@@ -9,6 +9,10 @@ class PDFGenerator {
   }
 
   async generateReport(data) {
+    console.log('[PDF] Iniciando generación...');
+    console.log('[PDF] Meses recibidos:', data.months?.map(m => m.short));
+    console.log('[PDF] Carreras recibidas:', data.careers?.length);
+
     const browser = await puppeteer.launch({
       args: [
         ...chromium.args,
@@ -25,6 +29,8 @@ class PDFGenerator {
     const page = await browser.newPage();
     
     const templatePath = path.join(this.templateDir, 'informe-tutorias.html');
+    console.log('[PDF] Leyendo template:', templatePath);
+    
     let html = fs.readFileSync(templatePath, 'utf8');
     
     html = html
@@ -35,16 +41,7 @@ class PDFGenerator {
       .replace(/{{RESPONSABLE}}/g, data.responsibleName || '')
       .replace(/{{PERIODO}}/g, data.period || '');
     
-    // Reemplazo de meses dinámicos en headers
-    const months = data.months || [];
-    months.forEach((m, idx) => {
-      html = html.replace(new RegExp(`{{MES_${idx + 1}}}`, 'g'), m.short);
-    });
-    for (let i = months.length + 1; i <= 6; i++) {
-      html = html.replace(new RegExp(`{{MES_${i}}}`, 'g'), '');
-    }
-    
-    const tablesHTML = this.buildCareerTables(data.careers, months);
+    const tablesHTML = this.buildCareerTables(data.careers, data.months || []);
     html = html.replace('{{SUMMARY_TABLE}}', tablesHTML.summary);
     html = html.replace('{{CAREER_TABLES}}', tablesHTML.detail);
 
@@ -57,7 +54,7 @@ class PDFGenerator {
       const b64 = buf.toString('base64');
       logoHeaderHtml = '<img src="data:image/png;base64,' + b64 + '" style="width:100%;height:auto;display:block;" />';
     } catch (e) {
-      console.warn('Logo PNG no encontrado');
+      console.warn('[PDF] Logo PNG no encontrado');
     }
 
     const logoFooterPath = path.join(this.templateDir, 'logo-uleam.jpg');
@@ -67,7 +64,7 @@ class PDFGenerator {
       const b64 = buf.toString('base64');
       logoFooterHtml = '<img src="data:image/jpeg;base64,' + b64 + '" style="width:100%;height:20px;display:block;object-fit:contain;" />';
     } catch (e) {
-      console.warn('Logo JPG no encontrado');
+      console.warn('[PDF] Logo JPG no encontrado');
     }
 
     const headerTemplate = 
@@ -87,6 +84,7 @@ class PDFGenerator {
         '</div>' +
       '</div>';
 
+    console.log('[PDF] Generando PDF con puppeteer...');
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -102,10 +100,13 @@ class PDFGenerator {
     });
     
     await browser.close();
+    console.log('[PDF] PDF generado exitosamente. Tamaño:', pdf.length, 'bytes');
     return pdf;
   }
 
   buildCareerTables(careers, months) {
+    console.log('[PDF] Construyendo tablas. Carreras:', careers?.length, 'Meses:', months?.length);
+    
     const totalTeachers = (careers || []).reduce((sum, c) => sum + (parseInt(c.teacher_count) || 0), 0);
     const totalStudents = (careers || []).reduce((sum, c) => sum + (parseInt(c.student_count) || 0), 0);
 

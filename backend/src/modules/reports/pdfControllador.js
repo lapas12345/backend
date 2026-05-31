@@ -21,6 +21,7 @@ exports.getPeriods = async (req, res) => {
 
 exports.generateReport = async (req, res) => {
   try {
+    console.log('[CTRL] Petición recibida:', req.body);
     const { period, oficioNumber } = req.body;
     
     const periodQuery = `
@@ -40,6 +41,8 @@ exports.generateReport = async (req, res) => {
     const fechaInicio = new Date(periodRows[0].fecha_inicio);
     const fechaFin = new Date(periodRows[0].fecha_fin);
     
+    console.log('[CTRL] Período BD:', periodName, 'Inicio:', fechaInicio, 'Fin:', fechaFin);
+    
     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
     const dynamicMonths = [];
     const current = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
@@ -53,6 +56,8 @@ exports.generateReport = async (req, res) => {
       });
       current.setMonth(current.getMonth() + 1);
     }
+    
+    console.log('[CTRL] Meses dinámicos:', dynamicMonths);
     
     const careersQuery = `
       SELECT 
@@ -75,6 +80,7 @@ exports.generateReport = async (req, res) => {
       ORDER BY c.nombre
     `;
     const { rows: careers } = await pool.query(careersQuery, [periodId]);
+    console.log('[CTRL] Carreras encontradas:', careers.length);
     
     for (let career of careers) {
       if (career.teacher_count === 0) {
@@ -132,8 +138,11 @@ exports.generateReport = async (req, res) => {
           }
         }
         
-        if (teach.dedicacion !== 'TIEMPO_COMPLETO') {
-          observation = `Docente ${teach.dedicacion.toLowerCase().replace('_', ' ')} - ${teach.tipo_vinculacion.toLowerCase()}`;
+        // CORRECCIÓN DEFENSIVA: evitar crash si dedicacion o tipo_vinculacion son null
+        if (teach.dedicacion && teach.dedicacion !== 'TIEMPO_COMPLETO') {
+          const ded = (teach.dedicacion || '').toLowerCase().replace('_', ' ');
+          const vin = (teach.tipo_vinculacion || '').toLowerCase();
+          observation = `Docente ${ded} - ${vin}`;
         }
 
         const monthCompliance = dynamicMonths.map(m => ({
@@ -149,6 +158,7 @@ exports.generateReport = async (req, res) => {
       }
     }
     
+    console.log('[CTRL] Enviando datos a PDFGenerator...');
     const pdfBuffer = await pdfGen.generateReport({
       oficioNumber: oficioNumber || `ULEAM-022-DPGA-TA-${period}`,
       date: new Date().toLocaleDateString('es-EC', { 
@@ -162,12 +172,13 @@ exports.generateReport = async (req, res) => {
       months: dynamicMonths
     });
     
+    console.log('[CTRL] PDF listo. Enviando al cliente...');
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=informe-tutorias-${period}.pdf`);
     res.send(pdfBuffer);
     
   } catch (error) {
-    console.error('Error generando PDF:', error);
+    console.error('[CTRL] ERROR generando PDF:', error);
     res.status(500).json({ 
       error: 'Error generando informe',
       details: error.message 
