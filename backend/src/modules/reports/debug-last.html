@@ -3,220 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <style>
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 11px; line-height: 1.4; padding: 20px; }
+    .header { text-align: right; font-size: 10px; margin-bottom: 20px; }
+    .oficio-num { font-weight: bold; }
+    .destinatario { margin: 20px 0; }
+    .destinatario p { margin: 2px 0; }
+    .cuerpo { text-align: justify; margin: 15px 0; }
+    .cuerpo p { margin: 8px 0; }
+    .bold { font-weight: bold; }
+    .firma { margin-top: 40px; text-align: center; }
+    .center { text-align: center !important; }
     
-    body { 
-      font-family: Arial, sans-serif; 
-      font-size: 11px; 
-      line-height: 1.4;
-      padding: 20px;
-    }
+    .tabla-resumen td, .tabla-resumen th { font-size: 10px; vertical-align: middle; }
+    .tabla-resumen td:first-child, .tabla-resumen th:first-child { width: 60%; text-align: left; }
+    .tabla-resumen td:nth-child(2), .tabla-resumen th:nth-child(2),
+    .tabla-resumen td:nth-child(3), .tabla-resumen th:nth-child(3) { width: 20%; text-align: center; }
+    .tabla-resumen tfoot tr.fila-total td { border-top: 2px solid #000; background-color: #f0f0f0; font-size: 10px; font-weight: bold; }
     
-    .header { 
-      text-align: right; 
-      font-size: 10px; 
-      margin-bottom: 20px; 
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 8px; table-layout: fixed; }
+    th, td { border: 1px solid #000 !important; padding: 5px 4px; vertical-align: middle; overflow: hidden; word-wrap: break-word; }
+    th { background-color: #e8e8e8; font-weight: bold; text-align: center; font-size: 9px; }
+    td { font-size: 9px; }
     
-    .oficio-num { 
-      font-weight: bold; 
-    }
+    .tabla-carrera td, .tabla-carrera th { font-size: 9px; }
+    .tabla-carrera td:first-child, .tabla-carrera th:first-child { width: 5%; text-align: center; }
+    .tabla-carrera td:nth-child(2), .tabla-carrera th:nth-child(2) { width: 33%; text-align: left; }
+    .tabla-carrera th.mes, .tabla-carrera td.mes { width: auto; text-align: center; min-width: 6%; }
+    .tabla-carrera td:last-child, .tabla-carrera th:last-child { width: 20%; text-align: left; }
     
-    .destinatario { 
-      margin: 20px 0; 
-    }
-    
-    .destinatario p { 
-      margin: 2px 0; 
-    }
-    
-    .cuerpo { 
-      text-align: justify; 
-      margin: 15px 0; 
-    }
-    
-    .cuerpo p { 
-      margin: 8px 0; 
-    }
-    
-    .bold { 
-      font-weight: bold; 
-    }
-    
-    .firma { 
-      margin-top: 40px; 
-      text-align: center; 
-    }
-
-    /* Clase utilitaria para centrado */
-    .center {
-      text-align: center !important;
-    }
-
-    /* Tabla resumen */
-    .tabla-resumen td,
-    .tabla-resumen th {
-      font-size: 10px;
-      vertical-align: middle;
-    }
-
-    .tabla-resumen .col-numero {
-      width: 8%;
-      text-align: center;
-    }
-
-    .tabla-resumen .col-carrera {
-      width: 52%;
-      text-align: left;
-    }
-
-    .tabla-resumen .col-docentes,
-    .tabla-resumen .col-estudiantes {
-      width: 20%;
-      text-align: center;
-    }
-
-    /* Fila de totales */
-    .tabla-resumen tfoot tr.fila-total td {
-      border-top: 2px solid #000;
-      background-color: #f0f0f0;
-      font-size: 10px;
-      font-weight: bold;
-    }
-    
-    /* ============================================
-       TABLAS CON ANCHOS FIJOS
-       ============================================ */
-    
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      margin-top: 8px;
-      margin-bottom: 8px;
-      table-layout: fixed; /* ANCHO FIJO */
-    }
-    
-    th, td { 
-      border: 1px solid #000 !important; 
-      padding: 5px 4px;
-      vertical-align: middle;
-      overflow: hidden;
-      word-wrap: break-word;
-    }
-    
-    th {
-      background-color: #e8e8e8;
-      font-weight: bold;
-      text-align: center;
-      font-size: 9px;
-    }
-    
-    td {
-      font-size: 9px;
-    }
-    
-    /* ============================================
-       ANCHOS DE COLUMNAS - TABLA RESUMEN
-       ============================================ */
-    
-    .tabla-resumen td,
-    .tabla-resumen th {
-      font-size: 10px;
-    }
-    
-    .tabla-resumen td:first-child,
-    .tabla-resumen th:first-child {
-      width: 60%;
-      text-align: left;
-    }
-    
-    .tabla-resumen td:nth-child(2),
-    .tabla-resumen th:nth-child(2),
-    .tabla-resumen td:nth-child(3),
-    .tabla-resumen th:nth-child(3) {
-      width: 20%;
-      text-align: center;
-    }
-    
-    /* ============================================
-       ANCHOS DE COLUMNAS - TABLA CARRERA (DINÁMICO)
-       ============================================ */
-    
-    .tabla-carrera td,
-    .tabla-carrera th {
-      font-size: 9px;
-    }
-    
-    /* N° */
-    .tabla-carrera td:first-child,
-    .tabla-carrera th:first-child {
-      width: 5%;
-      text-align: center;
-    }
-    
-    /* Apellidos y nombres */
-    .tabla-carrera td:nth-child(2),
-    .tabla-carrera th:nth-child(2) {
-      width: 33%;
-      text-align: left;
-    }
-    
-    /* Meses dinámicos - distribución automática */
-    .tabla-carrera th.mes,
-    .tabla-carrera td.mes {
-      width: auto;
-      text-align: center;
-      min-width: 6%;
-    }
-    
-    /* Observación */
-    .tabla-carrera td:last-child,
-    .tabla-carrera th:last-child {
-      width: 20%;
-      text-align: left;
-    }
-    
-    /* ============================================
-       OTROS ESTILOS
-       ============================================ */
-    
-    .titulo-carrera {
-      font-size: 11px;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-top: 16px;
-      margin-bottom: 4px;
-    }
-    
-    .nota-modular {
-      font-size: 9px;
-      font-style: italic;
-      margin: 4px 0 8px 0;
-    }
-    
-    .fuente {
-      font-size: 10px;
-      margin-top: 10px;
-    }
-    
-    .observaciones-finales {
-      margin-top: 20px;
-    }
+    .titulo-carrera { font-size: 11px; text-transform: uppercase; font-weight: bold; margin-top: 16px; margin-bottom: 4px; }
+    .nota-modular { font-size: 9px; font-style: italic; margin: 4px 0 8px 0; }
+    .fuente { font-size: 10px; margin-top: 10px; }
+    .observaciones-finales { margin-top: 20px; }
   </style>
 </head>
 <body>
-  <!-- Encabezado del oficio -->
   <div class="header">
     <div class="oficio-num">Oficio No. {{OFICIO_NUM}}</div>
     <div>{{FECHA}}</div>
   </div>
 
-  <!-- Destinatario -->
   <div class="destinatario">
     <p><strong>{{DESTINATARIO}}</strong></p>
     <p>PRESIDENTE DE COMISIÓN DE GESTIÓN Y ASEGURAMIENTO DE LA CALIDAD</p>
@@ -224,7 +51,6 @@
     <p>Presente.</p>
   </div>
 
-  <!-- Cuerpo del oficio -->
   <div class="cuerpo">
     <p>De acuerdo con lo solicitado en el <strong>MEMO No. {{MEMO_REF}}</strong> 
     con fecha 02 de enero del 2026, recibido por correo institucional, como 
@@ -248,14 +74,11 @@
     compartida a todos los docentes, donde subieron los reportes PAA-02-F-001, firmados electrónicamente.</p>
   </div>
 
-  <!-- Tabla 2 - Resumen -->
   <h3 style="font-size: 11px; margin-top: 20px;">Tabla 2 - RESUMEN DEL TOTAL DE TUTORÍAS ACADÉMICAS POR CARRERA PERIODO {{PERIODO}}</h3>
   
   {{SUMMARY_TABLE}}
 
-  <p class="fuente">
-    <strong>Fuente:</strong> DPGA -- Tutorías (Power Apps)
-  </p>
+  <p class="fuente"><strong>Fuente:</strong> DPGA -- Tutorías (Power Apps)</p>
 
   <p style="margin-top: 10px; font-size: 11px; font-weight: bold;">
     Tutorías académicas por meses cumplidas/no cumplidas por carrera<br>
@@ -264,13 +87,11 @@
 
   {{CAREER_TABLES}}
 
-  <!-- Observaciones finales -->
   <div class="observaciones-finales">
     <p><strong>Observaciones:</strong></p>
     <p>Particular que comunico para fines pertinentes.</p>
   </div>
 
-  <!-- Firma -->
   <div class="firma">
     <p>Atentamente,</p>
     <p style="margin-top: 40px;"><strong>{{RESPONSABLE}}</strong></p>

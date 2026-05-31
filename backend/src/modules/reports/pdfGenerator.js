@@ -27,7 +27,6 @@ class PDFGenerator {
     const templatePath = path.join(this.templateDir, 'informe-tutorias.html');
     let html = fs.readFileSync(templatePath, 'utf8');
     
-    // Reemplazo de datos básicos
     html = html
       .replace(/{{OFICIO_NUM}}/g, data.oficioNumber || '')
       .replace(/{{FECHA}}/g, data.date || '')
@@ -36,24 +35,21 @@ class PDFGenerator {
       .replace(/{{RESPONSABLE}}/g, data.responsibleName || '')
       .replace(/{{PERIODO}}/g, data.period || '');
     
-    // Reemplazo de meses dinámicos en headers de tabla
+    // Reemplazo de meses dinámicos en headers
     const months = data.months || [];
     months.forEach((m, idx) => {
       html = html.replace(new RegExp(`{{MES_${idx + 1}}}`, 'g'), m.short);
     });
-    // Limpiar placeholders no usados (si el período tiene menos de 4 meses)
     for (let i = months.length + 1; i <= 6; i++) {
       html = html.replace(new RegExp(`{{MES_${i}}}`, 'g'), '');
     }
     
-    // Construir tablas con datos dinámicos
     const tablesHTML = this.buildCareerTables(data.careers, months);
     html = html.replace('{{SUMMARY_TABLE}}', tablesHTML.summary);
     html = html.replace('{{CAREER_TABLES}}', tablesHTML.detail);
 
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
-    // Logo HEADER (PNG)
     const logoHeaderPath = path.join(this.templateDir, 'logo-uleam.png');
     let logoHeaderHtml = '<div></div>';
     try {
@@ -64,7 +60,6 @@ class PDFGenerator {
       console.warn('Logo PNG no encontrado');
     }
 
-    // Logo FOOTER (JPG)
     const logoFooterPath = path.join(this.templateDir, 'logo-uleam.jpg');
     let logoFooterHtml = '<div></div>';
     try {
@@ -75,7 +70,6 @@ class PDFGenerator {
       console.warn('Logo JPG no encontrado');
     }
 
-    // HEADER
     const headerTemplate = 
       '<div style="font-size:8px;width:100%;margin:0;padding:0;box-sizing:border-box;">' +
         '<div style="padding:0 1cm;">' +
@@ -83,7 +77,6 @@ class PDFGenerator {
         '</div>' +
       '</div>';
 
-    // FOOTER
     const footerTemplate = 
       '<div style="font-size:8px;width:100%;margin:0;padding:0;box-sizing:border-box;">' +
         '<div style="padding:0 1cm;position:relative;">' +
@@ -132,7 +125,7 @@ class PDFGenerator {
             <th style="width:8%">N°</th>
             <th style="width:52%">CARRERA</th>
             <th style="width:20%">Número de Docentes</th>
-            <th style="width:20%">Total de Estudiantes Tutorados</th>
+            <th style="width:20%">Total, de Estudiantes Tutorados</th>
           </tr>
         </thead>
         <tbody>${summaryRows}</tbody>
@@ -146,12 +139,8 @@ class PDFGenerator {
       </table>
     `;
 
-    // Generar headers de meses dinámicos
     const monthHeaders = months.map(m => `<th class="mes">${m.short}</th>`).join('');
-    
-    // Calcular ancho dinámico para columnas de meses
-    const monthColWidth = months.length > 0 ? Math.floor(32 / months.length) : 8; // 32% distribuido entre meses
-    
+
     const detail = (careers || []).map(career => {
       const modularNames = ['ELECTROMECÁNICA', 'DERECHO', 'ELECTROMECANICA'];
       const isModular = modularNames.some(m => (career.name || '').toUpperCase().includes(m));
@@ -160,7 +149,6 @@ class PDFGenerator {
         `<p class="nota-modular">Al ser modular no todos los docentes tienen módulos los ${months.length} meses por lo tanto solo se especifica el cumplimiento de los docentes a tiempo completo.</p>` : '';
       
       const rows = (career.teachers || []).map((t, i) => {
-        // Generar celdas de meses dinámicos
         const monthCells = (t.monthCompliance || []).map(mc => 
           `<td class="mes">${mc.complied ? '✓' : ''}</td>`
         ).join('');
