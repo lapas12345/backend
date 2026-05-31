@@ -2,8 +2,8 @@ import { App } from '../frontend/src/App'
 
 export const Report = () => {
    return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-        <header style={{ backgroundColor: '#1e3a8a', color: 'white', padding: '15px', textAlign: 'center' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#031e53' }}>
+        <header style={{ backgroundColor: '#a5adc4', color: 'white', padding: '15px', textAlign: 'center' }}>
           </header>
         <main>
             <App />
