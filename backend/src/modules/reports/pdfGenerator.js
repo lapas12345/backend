@@ -27,6 +27,7 @@ class PDFGenerator {
     const templatePath = path.join(this.templateDir, 'informe-tutorias.html');
     let html = fs.readFileSync(templatePath, 'utf8');
     
+    // Reemplazo de datos básicos
     html = html
       .replace(/{{OFICIO_NUM}}/g, data.oficioNumber || '')
       .replace(/{{FECHA}}/g, data.date || '')
@@ -35,7 +36,18 @@ class PDFGenerator {
       .replace(/{{RESPONSABLE}}/g, data.responsibleName || '')
       .replace(/{{PERIODO}}/g, data.period || '');
     
-    const tablesHTML = this.buildCareerTables(data.careers);
+    // Reemplazo de meses dinámicos en headers de tabla
+    const months = data.months || [];
+    months.forEach((m, idx) => {
+      html = html.replace(new RegExp(`{{MES_${idx + 1}}}`, 'g'), m.short);
+    });
+    // Limpiar placeholders no usados (si el período tiene menos de 4 meses)
+    for (let i = months.length + 1; i <= 6; i++) {
+      html = html.replace(new RegExp(`{{MES_${i}}}`, 'g'), '');
+    }
+    
+    // Construir tablas con datos dinámicos
+    const tablesHTML = this.buildCareerTables(data.careers, months);
     html = html.replace('{{SUMMARY_TABLE}}', tablesHTML.summary);
     html = html.replace('{{CAREER_TABLES}}', tablesHTML.detail);
 
@@ -100,7 +112,7 @@ class PDFGenerator {
     return pdf;
   }
 
-  buildCareerTables(careers) {
+  buildCareerTables(careers, months) {
     const totalTeachers = (careers || []).reduce((sum, c) => sum + (parseInt(c.teacher_count) || 0), 0);
     const totalStudents = (careers || []).reduce((sum, c) => sum + (parseInt(c.student_count) || 0), 0);
 
@@ -120,7 +132,7 @@ class PDFGenerator {
             <th style="width:8%">N°</th>
             <th style="width:52%">CARRERA</th>
             <th style="width:20%">Número de Docentes</th>
-            <th style="width:20%">Total, de Estudiantes Tutorados</th>
+            <th style="width:20%">Total de Estudiantes Tutorados</th>
           </tr>
         </thead>
         <tbody>${summaryRows}</tbody>
@@ -134,24 +146,34 @@ class PDFGenerator {
       </table>
     `;
 
+    // Generar headers de meses dinámicos
+    const monthHeaders = months.map(m => `<th class="mes">${m.short}</th>`).join('');
+    
+    // Calcular ancho dinámico para columnas de meses
+    const monthColWidth = months.length > 0 ? Math.floor(32 / months.length) : 8; // 32% distribuido entre meses
+    
     const detail = (careers || []).map(career => {
       const modularNames = ['ELECTROMECÁNICA', 'DERECHO', 'ELECTROMECANICA'];
       const isModular = modularNames.some(m => (career.name || '').toUpperCase().includes(m));
       
       const modularNote = isModular ? 
-        `<p class="nota-modular">Al ser modular no todos los docentes tienen módulos los 3 meses por lo tanto solo se especifica el cumplimiento de los docentes a tiempo completo.</p>` : '';
+        `<p class="nota-modular">Al ser modular no todos los docentes tienen módulos los ${months.length} meses por lo tanto solo se especifica el cumplimiento de los docentes a tiempo completo.</p>` : '';
       
-      const rows = (career.teachers || []).map((t, i) => `
-        <tr>
-          <td class="numero">${i+1}</td>
-          <td>${t.fullName || ''}</td>
-          <td class="mes">${t.sep ? '✓' : ''}</td>
-          <td class="mes">${t.oct ? '✓' : ''}</td>
-          <td class="mes">${t.nov ? '✓' : ''}</td>
-          <td class="mes">${t.dic ? '✓' : ''}</td>
-          <td class="observacion">${t.observation || ''}</td>
-        </tr>
-      `).join('');
+      const rows = (career.teachers || []).map((t, i) => {
+        // Generar celdas de meses dinámicos
+        const monthCells = (t.monthCompliance || []).map(mc => 
+          `<td class="mes">${mc.complied ? '✓' : ''}</td>`
+        ).join('');
+        
+        return `
+          <tr>
+            <td class="numero">${i+1}</td>
+            <td>${t.fullName || ''}</td>
+            ${monthCells}
+            <td class="observacion">${t.observation || ''}</td>
+          </tr>
+        `;
+      }).join('');
 
       return `
         <div>
@@ -162,10 +184,7 @@ class PDFGenerator {
               <tr>
                 <th class="numero">N°</th>
                 <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
+                ${monthHeaders}
                 <th>Observación</th>
               </tr>
             </thead>

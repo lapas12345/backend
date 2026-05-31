@@ -20,7 +20,7 @@ exports.getPeriods = async (req, res) => {
 };
 
 // ============================================
-// FUNCIÓN EXISTENTE: Generar reporte PDF
+// FUNCIÓN ACTUALIZADA: Generar reporte PDF con meses dinámicos
 // ============================================
 exports.generateReport = async (req, res) => {
   try {
@@ -41,31 +41,48 @@ exports.generateReport = async (req, res) => {
     
     const periodId = periodRows[0].id_periodo;
     const periodName = periodRows[0].nombre;
+    const fechaInicio = new Date(periodRows[0].fecha_inicio);
+    const fechaFin = new Date(periodRows[0].fecha_fin);
     
-    // 2. Obtener TODAS las carreras activas (LEFT JOIN para incluir sin docentes)
+    // 2. Calcular meses dinámicos del período
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
+    const dynamicMonths = [];
+    const current = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
+    const end = new Date(fechaFin.getFullYear(), fechaFin.getMonth(), 1);
+    
+    while (current <= end) {
+      dynamicMonths.push({
+        num: current.getMonth() + 1,        // 1-12
+        short: monthNames[current.getMonth()], // Ene, Feb...
+        full: current.toLocaleString('es-EC', { month: 'long' }) // enero, febrero...
+      });
+      current.setMonth(current.getMonth() + 1);
+    }
+    
+    // 3. Obtener TODAS las carreras activas
     const careersQuery = `
-  SELECT 
-    c.id_carrera,
-    c.nombre as name,
-    COUNT(DISTINCT ar.id_profesor) as teacher_count,
-    COUNT(DISTINCT te.id_estudiante) as student_count
-  FROM seguimiento.carrera c
-  LEFT JOIN seguimiento.asignacion_rol ar 
-    ON ar.id_carrera = c.id_carrera 
-    AND ar.id_periodo = $1
-  LEFT JOIN seguimiento.informe_mensual im
-    ON im.id_carrera = c.id_carrera
-    AND im.id_periodo = $1
-    AND im.id_funcion = 1
-  LEFT JOIN seguimiento.tutoria_estudiante te
-    ON te.id_informe = im.id_informe
-  WHERE c.estado = 'ACTIVO'
-  GROUP BY c.id_carrera, c.nombre
-  ORDER BY c.nombre
-`;
+      SELECT 
+        c.id_carrera,
+        c.nombre as name,
+        COUNT(DISTINCT ar.id_profesor) as teacher_count,
+        COUNT(DISTINCT te.id_estudiante) as student_count
+      FROM seguimiento.carrera c
+      LEFT JOIN seguimiento.asignacion_rol ar 
+        ON ar.id_carrera = c.id_carrera 
+        AND ar.id_periodo = $1
+      LEFT JOIN seguimiento.informe_mensual im
+        ON im.id_carrera = c.id_carrera
+        AND im.id_periodo = $1
+        AND im.id_funcion = 1
+      LEFT JOIN seguimiento.tutoria_estudiante te
+        ON te.id_informe = im.id_informe
+      WHERE c.estado = 'ACTIVO'
+      GROUP BY c.id_carrera, c.nombre
+      ORDER BY c.nombre
+    `;
     const { rows: careers } = await pool.query(careersQuery, [periodId]);
     
-    // 3. Para cada carrera, obtener docentes
+    // 4. Para cada carrera, obtener docentes
     for (let career of careers) {
       if (career.teacher_count === 0) {
         career.teachers = [];
@@ -109,32 +126,40 @@ exports.generateReport = async (req, res) => {
           career.id_carrera
         ]);
         
-        const meses = { 9: false, 10: false, 11: false, 12: false };
+        // Meses dinámicos: crear objeto con keys basadas en los meses del período
+        const mesesCumplidos = {};
+        dynamicMonths.forEach(m => {
+          mesesCumplidos[m.num] = false;
+        });
+        
         let observation = '';
         
         for (let inf of informes) {
-          if (inf.mes >= 9 && inf.mes <= 12) {
-            meses[inf.mes] = (inf.estado === 'APROBADO' || inf.fecha_firma !== null);
+          // Solo marcar si el mes del informe está dentro de los meses del período
+          if (mesesCumplidos.hasOwnProperty(inf.mes)) {
+            mesesCumplidos[inf.mes] = (inf.estado === 'APROBADO' || inf.fecha_firma !== null);
           }
         }
         
         if (teach.dedicacion !== 'TIEMPO_COMPLETO') {
           observation = `Docente ${teach.dedicacion.toLowerCase().replace('_', ' ')} - ${teach.tipo_vinculacion.toLowerCase()}`;
         }
-
+        
+        // Crear array de cumplimiento en el orden de los meses dinámicos
+        const monthCompliance = dynamicMonths.map(m => ({
+          month: m.num,
+          complied: mesesCumplidos[m.num]
+        }));
            
         career.teachers.push({
           fullName: teach.full_name,
-          sep: meses[9],
-          oct: meses[10],
-          nov: meses[11],
-          dic: meses[12],
+          monthCompliance: monthCompliance, // Array dinámico [{month: 9, complied: true}, ...]
           observation: observation
         });
       }
     }
     
-    // 4. Generar PDF
+    // 5. Generar PDF con meses dinámicos
     const pdfBuffer = await pdfGen.generateReport({
       oficioNumber: oficioNumber || `ULEAM-022-DPGA-TA-${period}`,
       date: new Date().toLocaleDateString('es-EC', { 
@@ -144,7 +169,8 @@ exports.generateReport = async (req, res) => {
       memoRef: 'ULEAM--CGAC-LBLO-002-2026',
       responsibleName: 'Responsable Tutorías Académicas',
       period: periodName,
-      careers: careers
+      careers: careers,
+      months: dynamicMonths // <-- NUEVO: pasa los meses dinámicos
     });
     
     res.setHeader('Content-Type', 'application/pdf');

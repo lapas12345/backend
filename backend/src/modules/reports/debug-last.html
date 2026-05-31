@@ -53,69 +53,41 @@
       text-align: center; 
     }
 
- /* Clase utilitaria para centrado */
-.center {
-  text-align: center !important;
-}
+    /* Clase utilitaria para centrado */
+    .center {
+      text-align: center !important;
+    }
 
-/* Tabla resumen */
-.tabla-resumen td,
-.tabla-resumen th {
-  font-size: 10px;
-  vertical-align: middle;
-}
+    /* Tabla resumen */
+    .tabla-resumen td,
+    .tabla-resumen th {
+      font-size: 10px;
+      vertical-align: middle;
+    }
 
-.tabla-resumen .col-numero {
-  width: 8%;
-  text-align: center;
-}
+    .tabla-resumen .col-numero {
+      width: 8%;
+      text-align: center;
+    }
 
-.tabla-resumen .col-carrera {
-  width: 52%;
-  text-align: left;
-}
+    .tabla-resumen .col-carrera {
+      width: 52%;
+      text-align: left;
+    }
 
-.tabla-resumen .col-docentes,
-.tabla-resumen .col-estudiantes {
-  width: 20%;
-  text-align: center;
-}
+    .tabla-resumen .col-docentes,
+    .tabla-resumen .col-estudiantes {
+      width: 20%;
+      text-align: center;
+    }
 
-/* Clase utilitaria para centrado */
-.center {
-  text-align: center !important;
-}
-
-/* Tabla resumen */
-.tabla-resumen td,
-.tabla-resumen th {
-  font-size: 10px;
-  vertical-align: middle;
-}
-
-.tabla-resumen .col-numero {
-  width: 8%;
-  text-align: center;
-}
-
-.tabla-resumen .col-carrera {
-  width: 52%;
-  text-align: left;
-}
-
-.tabla-resumen .col-docentes,
-.tabla-resumen .col-estudiantes {
-  width: 20%;
-  text-align: center;
-}
-
-/* Fila de totales */
-.tabla-resumen tfoot tr.fila-total td {
-  border-top: 2px solid #000;
-  background-color: #f0f0f0;
-  font-size: 10px;
-  font-weight: bold;
-}
+    /* Fila de totales */
+    .tabla-resumen tfoot tr.fila-total td {
+      border-top: 2px solid #000;
+      background-color: #f0f0f0;
+      font-size: 10px;
+      font-weight: bold;
+    }
     
     /* ============================================
        TABLAS CON ANCHOS FIJOS
@@ -172,7 +144,7 @@
     }
     
     /* ============================================
-       ANCHOS DE COLUMNAS - TABLA CARRERA
+       ANCHOS DE COLUMNAS - TABLA CARRERA (DINÁMICO)
        ============================================ */
     
     .tabla-carrera td,
@@ -190,26 +162,21 @@
     /* Apellidos y nombres */
     .tabla-carrera td:nth-child(2),
     .tabla-carrera th:nth-child(2) {
-      width: 35%;
+      width: 33%;
       text-align: left;
     }
     
-    /* Sept, Oct, Nov, Dic - TODOS IGUALES */
-    .tabla-carrera td:nth-child(3),
-    .tabla-carrera th:nth-child(3),
-    .tabla-carrera td:nth-child(4),
-    .tabla-carrera th:nth-child(4),
-    .tabla-carrera td:nth-child(5),
-    .tabla-carrera th:nth-child(5),
-    .tabla-carrera td:nth-child(6),
-    .tabla-carrera th:nth-child(6) {
-      width: 8%;
+    /* Meses dinámicos - distribución automática */
+    .tabla-carrera th.mes,
+    .tabla-carrera td.mes {
+      width: auto;
       text-align: center;
+      min-width: 6%;
     }
     
     /* Observación */
-    .tabla-carrera td:nth-child(7),
-    .tabla-carrera th:nth-child(7) {
+    .tabla-carrera td:last-child,
+    .tabla-carrera th:last-child {
       width: 20%;
       text-align: left;
     }
@@ -245,13 +212,13 @@
 <body>
   <!-- Encabezado del oficio -->
   <div class="header">
-    <div class="oficio-num">Oficio No. ULEAM-022-DPGA-TA-2025-2</div>
-    <div>El Carmen, 24 de mayo de 2026</div>
+    <div class="oficio-num">Oficio No. {{OFICIO_NUM}}</div>
+    <div>{{FECHA}}</div>
   </div>
 
   <!-- Destinatario -->
   <div class="destinatario">
-    <p><strong>Lic. Líder Lanche MSc.</strong></p>
+    <p><strong>{{DESTINATARIO}}</strong></p>
     <p>PRESIDENTE DE COMISIÓN DE GESTIÓN Y ASEGURAMIENTO DE LA CALIDAD</p>
     <p>ULEAM EXTENSIÓN EL CARMEN</p>
     <p>Presente.</p>
@@ -259,13 +226,13 @@
 
   <!-- Cuerpo del oficio -->
   <div class="cuerpo">
-    <p>De acuerdo con lo solicitado en el <strong>MEMO No. ULEAM--CGAC-LBLO-002-2026</strong> 
+    <p>De acuerdo con lo solicitado en el <strong>MEMO No. {{MEMO_REF}}</strong> 
     con fecha 02 de enero del 2026, recibido por correo institucional, como 
     responsable de la gestión de tutorías académicas de la Extensión El Carmen, 
     informo del cumplimiento de las actividades y del registro de las tutorías 
     académicas en Tutorías -- DPGA -- Power Apps.</p>
 
-    <p>a) Las actividades realizadas en el presente periodo académico <strong>2025-2</strong>, 
+    <p>a) Las actividades realizadas en el presente periodo académico <strong>{{PERIODO}}</strong>, 
     de mi gestión están detalladas en los informes mensuales entregados al presidente 
     de Comisión Académica vía correo institucional según <strong>PAE-04-G-001-F-001</strong>.</p>
 
@@ -282,112 +249,9 @@
   </div>
 
   <!-- Tabla 2 - Resumen -->
-  <h3 style="font-size: 11px; margin-top: 20px;">Tabla 2 - RESUMEN DEL TOTAL DE TUTORÍAS ACADÉMICAS POR CARRERA PERIODO 2025-2</h3>
+  <h3 style="font-size: 11px; margin-top: 20px;">Tabla 2 - RESUMEN DEL TOTAL DE TUTORÍAS ACADÉMICAS POR CARRERA PERIODO {{PERIODO}}</h3>
   
-  
-      <table class="tabla-resumen">
-        <thead>
-          <tr><th>CARRERA</th><th>Número de Docentes</th><th>Total de Estudiantes Tutorados</th></tr>
-        </thead>
-        <tbody>
-      <tr>
-        <td>ADMINISTRACIÓN DE EMPRESAS</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>AGRONEGOCIOS</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>ALIMENTOS</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>AUDITORÍA Y CONTROL DE GESTIÓN</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>DERECHO</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>EDUCACIÓN BÁSICA</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>EDUCACIÓN INICIAL 2022</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>EDUCACIÓN INICIAL 2025</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>ELECTROMECÁNICA</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>ENFERMERÍA</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>FINANZAS</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>FISIOTERAPIA</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>PSICOLOGÍA EDUCATIVA 2022</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>PSICOLOGÍA EDUCATIVA 2025</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>SOFTWARE</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    
-      <tr>
-        <td>TECNOLOGÍAS DE LA INFORMACIÓN</td>
-        <td class="center">1</td>
-        <td class="center">0</td>
-      </tr>
-    </tbody>
-      </table>
-    
+  {{SUMMARY_TABLE}}
 
   <p class="fuente">
     <strong>Fuente:</strong> DPGA -- Tutorías (Power Apps)
@@ -398,471 +262,7 @@
     (Según reportes generados de la App-Tutorías)
   </p>
 
-  
-        <div>
-          <h3 class="titulo-carrera">ADMINISTRACIÓN DE EMPRESAS</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>CARLOS ANDRÉS ZAMBRANO LÓPEZ</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">AGRONEGOCIOS</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>ANA MARÍA FLORES VEGA</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">ALIMENTOS</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>PEDRO ANTONIO RUIZ MENDOZA</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion">Docente medio tiempo - nombramiento</td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">AUDITORÍA Y CONTROL DE GESTIÓN</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>ANA LUCIA VEGA TORRES</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion">Docente tiempo parcial - contrato</td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">DERECHO</h3>
-          <p class="nota-modular">Al ser modular no todos los docentes tienen módulos los 3 meses por lo tanto solo se especifica el cumplimiento de los docentes a tiempo completo.</p>
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>GLORIA ESTELA RAMOS CORTEZ</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">EDUCACIÓN BÁSICA</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>CARMEN ELENA DÍAZ LOPEZ</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">EDUCACIÓN INICIAL 2022</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>Diana PATRICIA MORALES SOTO</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion">Docente medio tiempo - contrato</td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">EDUCACIÓN INICIAL 2025</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>JORGE LUIS HERRERA GÓMEZ</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">ELECTROMECÁNICA</h3>
-          <p class="nota-modular">Al ser modular no todos los docentes tienen módulos los 3 meses por lo tanto solo se especifica el cumplimiento de los docentes a tiempo completo.</p>
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>MARÍA ELENA GARCÍA RUIZ</td>
-          <td class="mes">✓</td>
-          <td class="mes"></td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion">Docente medio tiempo - contrato</td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">ENFERMERÍA</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>LILIANA MARCELA REYES PONCE</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">FINANZAS</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>LUIS ALBERTO TORRES CASTRO</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">FISIOTERAPIA</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>MIGUEL ÁNGEL SILVA BRAVO</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion">Docente medio tiempo - nombramiento</td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">PSICOLOGÍA EDUCATIVA 2022</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>ROBERTO CARLOS MENDEZ JIMÉNEZ</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">PSICOLOGÍA EDUCATIVA 2025</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>SANDRA MILENA ORTIZ RAMÍREZ</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion">Docente tiempo parcial - contrato</td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">SOFTWARE</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>JUAN PABLO MENDOZA CASTRO</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
-        <div>
-          <h3 class="titulo-carrera">TECNOLOGÍAS DE LA INFORMACIÓN</h3>
-          
-          <table class="tabla-carrera">
-            <thead>
-              <tr>
-                <th class="numero">N°</th>
-                <th>Apellidos y nombres del profesor</th>
-                <th class="mes">Sept</th>
-                <th class="mes">Oct</th>
-                <th class="mes">Nov</th>
-                <th class="mes">Dic</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-        <tr>
-          <td class="numero">1</td>
-          <td>FERNANDO JOSÉ CASTRO VARGAS</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="mes">✓</td>
-          <td class="observacion"></td>
-        </tr>
-      </tbody>
-          </table>
-        </div>
-      
+  {{CAREER_TABLES}}
 
   <!-- Observaciones finales -->
   <div class="observaciones-finales">
@@ -873,7 +273,7 @@
   <!-- Firma -->
   <div class="firma">
     <p>Atentamente,</p>
-    <p style="margin-top: 40px;"><strong>Responsable Tutorías Académicas</strong></p>
+    <p style="margin-top: 40px;"><strong>{{RESPONSABLE}}</strong></p>
     <p>Responsable Tutorías Académicas</p>
     <p>Extensión El Carmen</p>
   </div>
