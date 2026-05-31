@@ -1,5 +1,0 @@
-export * from './Dashboard'
-export * from './Titulacion'
-export * from './Practicas'
-export * from './Vinculacion'
-export * from './Investigacion'
