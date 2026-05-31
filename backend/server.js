@@ -4,17 +4,12 @@ const reportRoutes = require('./src/modules/reports/reportRoutes');
 require('dotenv').config();
 
 const app = express();
-app.use(cors({
-  origin: [
-    'https://sistema-gestion-academica.vercel.app',  // tu frontend en Vercel
-    'http://localhost:5173'                            // para desarrollo local
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
+app.use(cors({ origin: '*' })); 
 app.use(express.json());
 
 app.use('/api/reports', reportRoutes);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+const PORT = process.env.PORT || 3001;  // Render inyecta process.env.PORT
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor en puerto ${PORT}`);
+});
