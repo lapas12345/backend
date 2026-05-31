@@ -9,3 +9,5 @@ app.use(express.json());
 
 app.use('/api/reports', reportRoutes);
 
+const PORT = process.env.PORT || 3001; 
+
