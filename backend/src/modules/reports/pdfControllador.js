@@ -43,16 +43,12 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Período BD:', periodName, 'Inicio:', fechaInicio, 'Fin:', fechaFin);
     
-    // CORRECCIÓN: Calcular meses dinámicos incluyendo el mes final
+    // Calcular meses dinámicos del período
     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
     const dynamicMonths = [];
     
-    // Usar el primer día del mes de inicio
     let current = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
-    // Usar el último día del mes de fin para que el while lo incluya
     const end = new Date(fechaFin.getFullYear(), fechaFin.getMonth() + 1, 0);
-    
-    console.log('[CTRL] Loop meses desde:', current, 'hasta:', end);
     
     while (current <= end) {
       dynamicMonths.push({
@@ -65,7 +61,8 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Meses dinámicos:', dynamicMonths);
     
-    // Obtener carreras activas
+    // CORRECCIÓN: Query de carreras con conteo correcto de estudiantes tutorados
+    // Se cuenta estudiantes DISTINCT desde informe_semestral donde hay tutoría (id_funcion = 1)
     const careersQuery = `
       SELECT 
         c.id_carrera,
@@ -80,6 +77,7 @@ exports.generateReport = async (req, res) => {
         ON isem.id_carrera = c.id_carrera
         AND isem.id_periodo = $1
         AND isem.id_funcion = 1
+        AND isem.id_estudiante IS NOT NULL
       WHERE c.estado = 'ACTIVO'
       GROUP BY c.id_carrera, c.nombre
       ORDER BY c.nombre
@@ -132,7 +130,6 @@ exports.generateReport = async (req, res) => {
           career.id_carrera
         ]);
         
-        // Inicializar meses dinámicos del período
         const mesesCumplidos = {};
         dynamicMonths.forEach(m => {
           mesesCumplidos[m.num] = false;
