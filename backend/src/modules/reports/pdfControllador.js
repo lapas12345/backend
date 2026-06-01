@@ -61,22 +61,22 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Meses dinámicos:', dynamicMonths);
     
-    // 3. Obtener carreras activas con conteo de docentes y estudiantes tutorados
-    // CORRECCIÓN: usamos informe_mensual.id_estudiante en lugar de tutoria_estudiante
+    // 3. Obtener carreras activas
+    // CORRECCIÓN: usamos informe_semestral (NO informe_mensual) porque ahí está id_carrera
     const careersQuery = `
       SELECT 
         c.id_carrera,
         c.nombre as name,
-        COUNT(DISTINCT ar.id_profesor) as teacher_count,
-        COUNT(DISTINCT im.id_estudiante) as student_count
+        COUNT(DISTINCT ar.id_usuario) as teacher_count,
+        COUNT(DISTINCT isem.id_estudiante) as student_count
       FROM seguimiento.carrera c
       LEFT JOIN seguimiento.asignacion_rol ar 
         ON ar.id_carrera = c.id_carrera 
         AND ar.id_periodo = $1
-      LEFT JOIN seguimiento.informe_mensual im
-        ON im.id_carrera = c.id_carrera
-        AND im.id_periodo = $1
-        AND im.id_funcion = 1
+      LEFT JOIN seguimiento.informe_semestral isem
+        ON isem.id_carrera = c.id_carrera
+        AND isem.id_periodo = $1
+        AND isem.id_funcion = 1
       WHERE c.estado = 'ACTIVO'
       GROUP BY c.id_carrera, c.nombre
       ORDER BY c.nombre
@@ -91,16 +91,15 @@ exports.generateReport = async (req, res) => {
         continue;
       }
       
-      // CORRECCIÓN: tabla usuario (según diagrama) en lugar de profesor
       const teachersQuery = `
         SELECT 
-          u.id_profesor,
+          u.id_usuario,
           u.nombres || ' ' || u.apellidos as full_name,
           u.dedicacion,
           u.tipo_vinculacion
         FROM seguimiento.usuario u
         INNER JOIN seguimiento.asignacion_rol ar 
-          ON ar.id_profesor = u.id_profesor
+          ON ar.id_usuario = u.id_usuario
         WHERE ar.id_carrera = $1 
           AND ar.id_periodo = $2
           AND u.estado = 'ACTIVO'
@@ -110,21 +109,25 @@ exports.generateReport = async (req, res) => {
       
       career.teachers = [];
       for (let teach of teachers) {
+        // CORRECCIÓN: informe_mensual no tiene id_carrera ni id_usuario
+        // Se accede a través de informe_semestral
         const informesQuery = `
           SELECT 
-            mes,
-            estado,
-            fecha_generacion,
-            fecha_firma
-          FROM seguimiento.informe_mensual
-          WHERE id_profesor = $1
-            AND id_funcion = 1
-            AND id_periodo = $2
-            AND id_carrera = $3
-          ORDER BY mes
+            im.mes,
+            im.estado,
+            im.fecha_entrega as fecha_generacion,
+            im.fecha_firma
+          FROM seguimiento.informe_mensual im
+          INNER JOIN seguimiento.informe_semestral isem
+            ON isem.id_informe_semestral = im.id_informe_semestral
+          WHERE isem.id_usuario = $1
+            AND isem.id_funcion = 1
+            AND isem.id_periodo = $2
+            AND isem.id_carrera = $3
+          ORDER BY im.mes
         `;
         const { rows: informes } = await pool.query(informesQuery, [
-          teach.id_profesor, 
+          teach.id_usuario, 
           periodId, 
           career.id_carrera
         ]);
