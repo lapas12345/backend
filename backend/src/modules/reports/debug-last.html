@@ -14,23 +14,31 @@
     .bold { font-weight: bold; }
     .firma { margin-top: 40px; text-align: center; }
     .center { text-align: center !important; }
+
+    /* Tabla resumen - SI usa ancho fijo */
+    .tabla-resumen { table-layout: fixed; width: 100%; }
+    .tabla-resumen td, .tabla-resumen th { font-size: 10px; vertical-align: middle; border: 1px solid #000; padding: 5px 4px; }
+    .tabla-resumen td:first-child, .tabla-resumen th:first-child { width: 8%; text-align: center; }
+    .tabla-resumen td:nth-child(2), .tabla-resumen th:nth-child(2) { width: 52%; text-align: left; }
+    .tabla-resumen td:nth-child(3), .tabla-resumen th:nth-child(3),
+    .tabla-resumen td:nth-child(4), .tabla-resumen th:nth-child(4) { width: 20%; text-align: center; }
+    .tabla-resumen tfoot tr.fila-total td { border-top: 2px solid #000; background-color: #f0f0f0; font-weight: bold; }
+
+    /* Tablas carrera - layout automático para que se ajuste al contenido */
+    .tabla-carrera { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 8px; table-layout: auto; }
+    .tabla-carrera th, .tabla-carrera td { border: 1px solid #000; padding: 5px 4px; vertical-align: middle; font-size: 9px; }
     
-    .tabla-resumen td, .tabla-resumen th { font-size: 10px; vertical-align: middle; }
-    .tabla-resumen td:first-child, .tabla-resumen th:first-child { width: 60%; text-align: left; }
-    .tabla-resumen td:nth-child(2), .tabla-resumen th:nth-child(2),
-    .tabla-resumen td:nth-child(3), .tabla-resumen th:nth-child(3) { width: 20%; text-align: center; }
-    .tabla-resumen tfoot tr.fila-total td { border-top: 2px solid #000; background-color: #f0f0f0; font-size: 10px; font-weight: bold; }
+    /* N° */
+    .tabla-carrera td:first-child, .tabla-carrera th:first-child { width: 5%; text-align: center; white-space: nowrap; }
     
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 8px; table-layout: fixed; }
-    th, td { border: 1px solid #000 !important; padding: 5px 4px; vertical-align: middle; overflow: hidden; word-wrap: break-word; }
-    th { background-color: #e8e8e8; font-weight: bold; text-align: center; font-size: 9px; }
-    td { font-size: 9px; }
+    /* Apellidos y nombres */
+    .tabla-carrera td:nth-child(2), .tabla-carrera th:nth-child(2) { text-align: left; min-width: 120px; }
     
-    .tabla-carrera td, .tabla-carrera th { font-size: 9px; }
-    .tabla-carrera td:first-child, .tabla-carrera th:first-child { width: 5%; text-align: center; }
-    .tabla-carrera td:nth-child(2), .tabla-carrera th:nth-child(2) { width: 33%; text-align: left; }
-    .tabla-carrera th.mes, .tabla-carrera td.mes { width: auto; text-align: center; min-width: 6%; }
-    .tabla-carrera td:last-child, .tabla-carrera th:last-child { width: 20%; text-align: left; }
+    /* Meses - nowrap para que no se rompan las abreviaturas */
+    .tabla-carrera th.mes, .tabla-carrera td.mes { text-align: center; white-space: nowrap; width: 1%; }
+    
+    /* Observación - ancho fijo razonable con wrap normal */
+    .tabla-carrera td:last-child, .tabla-carrera th:last-child { width: 25%; text-align: left; min-width: 80px; }
     
     .titulo-carrera { font-size: 11px; text-transform: uppercase; font-weight: bold; margin-top: 16px; margin-bottom: 4px; }
     .nota-modular { font-size: 9px; font-style: italic; margin: 4px 0 8px 0; }
@@ -39,6 +47,7 @@
   </style>
 </head>
 <body>
+  <!-- ... el resto del HTML queda exactamente igual ... -->
   <div class="header">
     <div class="oficio-num">Oficio No. {{OFICIO_NUM}}</div>
     <div>{{FECHA}}</div>
