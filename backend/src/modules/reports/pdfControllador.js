@@ -61,8 +61,7 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Meses dinámicos:', dynamicMonths);
     
-    // CORRECCIÓN: Query de carreras con conteo correcto de estudiantes tutorados
-    // Se cuenta estudiantes DISTINCT desde informe_semestral donde hay tutoría (id_funcion = 1)
+    // Obtener carreras activas
     const careersQuery = `
       SELECT 
         c.id_carrera,
@@ -111,6 +110,7 @@ exports.generateReport = async (req, res) => {
       for (let teach of teachers) {
         const informesQuery = `
           SELECT 
+            im.id_informe_mensual,
             im.mes,
             im.estado,
             im.fecha_entrega as fecha_generacion,
@@ -130,23 +130,49 @@ exports.generateReport = async (req, res) => {
           career.id_carrera
         ]);
         
+        // Inicializar meses dinámicos del período
         const mesesCumplidos = {};
         dynamicMonths.forEach(m => {
           mesesCumplidos[m.num] = false;
         });
         
+        // NUEVO: Obtener observaciones de la tabla observacion
         let observation = '';
         
+        // Buscar observaciones para este docente en este período y carrera
+        const observacionQuery = `
+          SELECT o.detalle
+          FROM seguimiento.observacion o
+          INNER JOIN seguimiento.informe_mensual im 
+            ON im.id_informe_mensual = o.id_informe_mensual
+          INNER JOIN seguimiento.informe_semestral isem
+            ON isem.id_informe_semestral = im.id_informe_semestral
+          WHERE isem.id_usuario = $1
+            AND isem.id_periodo = $2
+            AND isem.id_carrera = $3
+            AND o.estado = 'ACTIVO'
+          ORDER BY o.fecha_hora DESC
+          LIMIT 1
+        `;
+        const { rows: observaciones } = await pool.query(observacionQuery, [
+          teach.id_usuario,
+          periodId,
+          career.id_carrera
+        ]);
+        
+        if (observaciones.length > 0) {
+          observation = observaciones[0].detalle;
+        } else if (teach.dedicacion && teach.dedicacion !== 'TIEMPO_COMPLETO') {
+          // Fallback: si no hay observación en BD, usar dedicación como antes
+          const ded = (teach.dedicacion || '').toLowerCase().replace('_', ' ');
+          const vin = (teach.tipo_vinculacion || '').toLowerCase();
+          observation = `Docente ${ded} - ${vin}`;
+        }
+
         for (let inf of informes) {
           if (mesesCumplidos.hasOwnProperty(inf.mes)) {
             mesesCumplidos[inf.mes] = (inf.estado === 'APROBADO' || inf.fecha_firma !== null);
           }
-        }
-        
-        if (teach.dedicacion && teach.dedicacion !== 'TIEMPO_COMPLETO') {
-          const ded = (teach.dedicacion || '').toLowerCase().replace('_', ' ');
-          const vin = (teach.tipo_vinculacion || '').toLowerCase();
-          observation = `Docente ${ded} - ${vin}`;
         }
 
         const monthCompliance = dynamicMonths.map(m => ({
