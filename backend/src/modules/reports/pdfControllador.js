@@ -189,11 +189,17 @@ exports.generateReport = async (req, res) => {
     }
     
     console.log('[CTRL] Enviando datos a PDFGenerator...');
+    const now = new Date();
+// Ajustar a zona horaria de Ecuador (UTC-5)
+const ecuadorTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Guayaquil"}));
     const pdfBuffer = await pdfGen.generateReport({
       oficioNumber: oficioNumber || `ULEAM-022-DPGA-TA-${period}`,
-      date: new Date().toLocaleDateString('es-EC', { 
-        year: 'numeric', month: 'long', day: 'numeric' 
-      }),
+      // En el controller, reemplaza la línea de date por:
+
+
+date: ecuadorTime.toLocaleDateString('es-EC', { 
+  year: 'numeric', month: 'long', day: 'numeric' 
+}),
       destinatario: 'Lic. Líder Lanche MSc.',
       memoRef: 'ULEAM--CGAC-LBLO-002-2026',
       responsibleName: 'Responsable Tutorías Académicas',
