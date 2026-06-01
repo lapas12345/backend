@@ -15,14 +15,36 @@
     .firma { margin-top: 40px; text-align: center; }
     .center { text-align: center !important; }
 
-    /* Tabla resumen - SI usa ancho fijo */
-    .tabla-resumen { table-layout: fixed; width: 100%; }
-    .tabla-resumen td, .tabla-resumen th { font-size: 10px; vertical-align: middle; border: 1px solid #000; padding: 5px 4px; }
-    .tabla-resumen td:first-child, .tabla-resumen th:first-child { width: 8%; text-align: center; }
-    .tabla-resumen td:nth-child(2), .tabla-resumen th:nth-child(2) { width: 52%; text-align: left; }
+        /* Tabla resumen - ancho fijo + bordes colapsados */
+    .tabla-resumen { 
+      table-layout: fixed; 
+      width: 100%; 
+      border-collapse: collapse;  /* <-- ESTO FALTABA */
+    }
+    .tabla-resumen td, .tabla-resumen th { 
+      font-size: 10px; 
+      vertical-align: middle; 
+      border: 1px solid #000; 
+      padding: 4px 3px;  /* ligeramente más compacto */
+    }
+    .tabla-resumen td:first-child, .tabla-resumen th:first-child { 
+      width: 8%; 
+      text-align: center; 
+    }
+    .tabla-resumen td:nth-child(2), .tabla-resumen th:nth-child(2) { 
+      width: 52%; 
+      text-align: left; 
+    }
     .tabla-resumen td:nth-child(3), .tabla-resumen th:nth-child(3),
-    .tabla-resumen td:nth-child(4), .tabla-resumen th:nth-child(4) { width: 20%; text-align: center; }
-    .tabla-resumen tfoot tr.fila-total td { border-top: 2px solid #000; background-color: #f0f0f0; font-weight: bold; }
+    .tabla-resumen td:nth-child(4), .tabla-resumen th:nth-child(4) { 
+      width: 20%; 
+      text-align: center; 
+    }
+    .tabla-resumen tfoot tr.fila-total td { 
+      border-top: 2px solid #000; 
+      background-color: #f0f0f0; 
+      font-weight: bold; 
+    }
 
     /* Tablas carrera - layout automático para que se ajuste al contenido */
     .tabla-carrera { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 8px; table-layout: auto; }
