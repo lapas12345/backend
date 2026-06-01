@@ -24,7 +24,6 @@ exports.generateReport = async (req, res) => {
     console.log('[CTRL] Petición recibida:', req.body);
     const { period, oficioNumber } = req.body;
     
-    // 1. Obtener periodo académico
     const periodQuery = `
       SELECT id_periodo, nombre, fecha_inicio, fecha_fin
       FROM seguimiento.periodo_academico
@@ -44,11 +43,16 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Período BD:', periodName, 'Inicio:', fechaInicio, 'Fin:', fechaFin);
     
-    // 2. Calcular meses dinámicos del período
+    // CORRECCIÓN: Calcular meses dinámicos incluyendo el mes final
     const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sept', 'Oct', 'Nov', 'Dic'];
     const dynamicMonths = [];
-    const current = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
-    const end = new Date(fechaFin.getFullYear(), fechaFin.getMonth(), 1);
+    
+    // Usar el primer día del mes de inicio
+    let current = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
+    // Usar el último día del mes de fin para que el while lo incluya
+    const end = new Date(fechaFin.getFullYear(), fechaFin.getMonth() + 1, 0);
+    
+    console.log('[CTRL] Loop meses desde:', current, 'hasta:', end);
     
     while (current <= end) {
       dynamicMonths.push({
@@ -61,8 +65,7 @@ exports.generateReport = async (req, res) => {
     
     console.log('[CTRL] Meses dinámicos:', dynamicMonths);
     
-    // 3. Obtener carreras activas
-    // CORRECCIÓN: usamos informe_semestral (NO informe_mensual) porque ahí está id_carrera
+    // Obtener carreras activas
     const careersQuery = `
       SELECT 
         c.id_carrera,
@@ -84,7 +87,6 @@ exports.generateReport = async (req, res) => {
     const { rows: careers } = await pool.query(careersQuery, [periodId]);
     console.log('[CTRL] Carreras encontradas:', careers.length);
     
-    // 4. Para cada carrera, obtener docentes
     for (let career of careers) {
       if (career.teacher_count === 0) {
         career.teachers = [];
@@ -109,8 +111,6 @@ exports.generateReport = async (req, res) => {
       
       career.teachers = [];
       for (let teach of teachers) {
-        // CORRECCIÓN: informe_mensual no tiene id_carrera ni id_usuario
-        // Se accede a través de informe_semestral
         const informesQuery = `
           SELECT 
             im.mes,
@@ -146,7 +146,6 @@ exports.generateReport = async (req, res) => {
           }
         }
         
-        // Defensa contra null en la BD
         if (teach.dedicacion && teach.dedicacion !== 'TIEMPO_COMPLETO') {
           const ded = (teach.dedicacion || '').toLowerCase().replace('_', ' ');
           const vin = (teach.tipo_vinculacion || '').toLowerCase();
@@ -166,7 +165,6 @@ exports.generateReport = async (req, res) => {
       }
     }
     
-    // 5. Generar PDF
     console.log('[CTRL] Enviando datos a PDFGenerator...');
     const pdfBuffer = await pdfGen.generateReport({
       oficioNumber: oficioNumber || `ULEAM-022-DPGA-TA-${period}`,
