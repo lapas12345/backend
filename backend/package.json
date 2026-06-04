@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "migrate:vinculacion": "node scripts/runMigration.js database/migrations/003_vinculacion_campos_tablas_existentes.sql && node scripts/runMigration.js database/migrations/004_vinculacion_propietario_informe.sql",
+    "migrate:vinculacion:cleanup": "node scripts/runMigration.js database/migrations/002_eliminar_tablas_vinculacion_nuevas.sql",
+    "verify:vinculacion": "node scripts/inspectExistingSchema.js",
+    "sample:vinculacion": "node scripts/listVinculacionSampleData.js",
+    "bootstrap:vinculacion": "node scripts/bootstrapVinculacionResponsable.js",
+    "seed:vinculacion:test-user": "node scripts/createVinculacionTestUser.js"
   },
   "dependencies": {
     "express": "^4.18.0",

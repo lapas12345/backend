@@ -1,0 +1,61 @@
+{
+  "id_periodo": 1,
+  "id_carrera": 1,
+  "id_proyecto": 1,
+  "id_tipo_informe": 1,
+  "mes": 1,
+  "actividades": {
+    "desarrollo": "Actividad 1\nActividad 2",
+    "beneficiarios": 25,
+    "zona": "Punto Digital El Carmen",
+    "evidencias": [],
+    "items": [
+      {
+        "id": "actividad-1",
+        "titulo": "Actividad 1",
+        "descripcion": "Socialización del proyecto con estudiantes asignados.",
+        "evidencia_textual": "Registro de socialización firmado por los asistentes.",
+        "beneficiarios": 25,
+        "zona": "Punto Digital El Carmen",
+        "evidencias": []
+      },
+      {
+        "id": "actividad-2",
+        "titulo": "Actividad 2",
+        "descripcion": "Asignación de estudiantes al punto de vinculación.",
+        "evidencia_textual": "Listado de estudiantes asignados al Punto Digital.",
+        "beneficiarios": 25,
+        "zona": "Punto Digital El Carmen",
+        "evidencias": []
+      }
+    ]
+  },
+  "observaciones": [
+    {
+      "id": "observacion-actividad-1",
+      "titulo": "Registro de socialización firmado por los asistentes.",
+      "detalle": "Imagen que respalda la evidencia textual de la actividad 1.",
+      "id_actividad": "actividad-1",
+      "evidencias": [
+        {
+          "nombre": "registro-socializacion.jpg",
+          "mimeType": "image/jpeg",
+          "dataUrl": "data:image/jpeg;base64,REEMPLAZAR_POR_BASE64_REAL"
+        }
+      ]
+    },
+    {
+      "id": "observacion-actividad-2",
+      "titulo": "Listado de estudiantes asignados al Punto Digital.",
+      "detalle": "Imagen que respalda la evidencia textual de la actividad 2.",
+      "id_actividad": "actividad-2",
+      "evidencias": [
+        {
+          "nombre": "listado-estudiantes.png",
+          "mimeType": "image/png",
+          "dataUrl": "data:image/png;base64,REEMPLAZAR_POR_BASE64_REAL"
+        }
+      ]
+    }
+  ]
+}
